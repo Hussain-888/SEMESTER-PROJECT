@@ -45,3 +45,15 @@ int Zone::getTotalSlots() const {
     }
     return total;
 }
+
+int Zone::getAvailableSlots() const {
+    int available = 0;
+    for (int i = 0; i < areaCount; i++) {
+        available += parkingAreas[i]->getAvailableSlots();
+    }
+    return available;
+}
+
+bool Zone::isFull() const {
+    return getAvailableSlots() == 0;
+}
