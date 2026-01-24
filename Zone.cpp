@@ -32,4 +32,16 @@ ParkingArea* Zone::getParkingArea(int index) const {
         return parkingAreas[index];
     }
     return nullptr;
+};;;;;
+
+int Zone::getAreaCount() const {
+    return areaCount;
+}
+
+int Zone::getTotalSlots() const {
+    int total = 0;
+    for (int i = 0; i < areaCount; i++) {
+        total += parkingAreas[i]->getTotalSlots();
+    }
+    return total;
 }
