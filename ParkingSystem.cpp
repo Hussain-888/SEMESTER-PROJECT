@@ -263,4 +263,4 @@ ParkingRequest* ParkingSystem::findRequest(int requestId) const {
  }
  void ParkingSystem::addToHistory(ParkingRequest* request) {
     RequestNode* newNode = new RequestNode(request);
-    
+if (requestHistoryTail == nullptr) {
