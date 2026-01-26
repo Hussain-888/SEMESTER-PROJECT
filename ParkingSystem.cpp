@@ -262,3 +262,5 @@ ParkingRequest* ParkingSystem::findRequest(int requestId) const {
  return nullptr;
  }
  void ParkingSystem::addToHistory(ParkingRequest* request) {
+    RequestNode* newNode = new RequestNode(request);
+    
