@@ -268,3 +268,5 @@ if (requestHistoryTail == nullptr) {
  } else {
     requestHistoryTail->next = newNode;
      requestHistoryTail = newNode;
+      }
+      }
