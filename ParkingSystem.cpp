@@ -259,19 +259,4 @@ ParkingRequest* ParkingSystem::findRequest(int requestId) const {
         }
         current = current->next;
     }
-    return nullptr;
-}
-
-void ParkingSystem::addToHistory(ParkingRequest* request) {
-    RequestNode* newNode = new RequestNode(request);
-    if (requestHistoryTail == nullptr) {
-        requestHistoryHead = requestHistoryTail = newNode;
-    } else {
-        requestHistoryTail->next = newNode;
-        requestHistoryTail = newNode;
-    }
-}
-
-long long ParkingSystem::getCurrentTime() {
-    return ++currentTime;
-}
+ return nullptr;
