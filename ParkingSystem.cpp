@@ -271,3 +271,4 @@ if (requestHistoryTail == nullptr) {
       }
       }
 long long ParkingSystem::getCurrentTime() {
+    return ++currentTime;
