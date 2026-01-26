@@ -266,3 +266,4 @@ ParkingRequest* ParkingSystem::findRequest(int requestId) const {
 if (requestHistoryTail == nullptr) {
  requestHistoryHead = requestHistoryTail = newNode;
  } else {
+    requestHistoryTail->next = newNode;
