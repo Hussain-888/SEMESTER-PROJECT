@@ -270,3 +270,4 @@ if (requestHistoryTail == nullptr) {
      requestHistoryTail = newNode;
       }
       }
+long long ParkingSystem::getCurrentTime() {
