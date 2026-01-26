@@ -260,3 +260,4 @@ ParkingRequest* ParkingSystem::findRequest(int requestId) const {
         current = current->next;
     }
  return nullptr;
+ }
