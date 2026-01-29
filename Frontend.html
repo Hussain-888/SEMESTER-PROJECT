@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Allocation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Inter', sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #34495e 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            color: #1e3a5f;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e6ed;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d1d8e0;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #1e3a5f;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: #1e3a5f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #152d4a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d68910;
+        }
+
+        .zone-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .zone-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .zone-card.full {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .zone-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .zone-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .zone-stats div {
+            text-align: center;
+        }
+
+        .zone-stats .number {
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        .zone-stats .label {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-requested {
+            background: #3498db;
+            color: white;
+        }
+
+        .badge-allocated {
+            background: #f39c12;
+            color: white;
+        }
+
+        .badge-occupied {
+            background: #27ae60;
+            color: white;
+        }
+
+        .badge-released {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .badge-cancelled {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .request-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #1e3a5f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .request-info {
+            flex: 1;
+        }
+
+        .request-info h4 {
+            color: #1e3a5f;
+            margin-bottom: 8px;
+        }
+
+        .request-details {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e3a5f 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .cross-zone-indicator {
+            background: #f39c12;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .timer {
+            font-size: 0.9em;
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .rollback-section {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f39c12;
+        }
+
+        .rollback-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .rollback-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .rollback-controls input {
+            width: 100px;
+            padding: 10px;
+            border: 1px solid #d1d8e0;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        .rollback-info {
+            color: #856404;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🅿️ Smart Parking Allocation System</h1>
+        <p>Zone Management & Real-time Allocation</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Request Parking</h2>
+            <div class="input-group">
+                <label for="vehicleId">Vehicle Number</label>
+                <input type="text" id="vehicleId" placeholder="e.g., ABC-123" />
+            </div>
+            <div class="input-group">
+                <label for="preferredZone">Preferred Zone</label>
+                <select id="preferredZone">
+                    <option value="1">Zone 1</option>
+                    <option value="2">Zone 2</option>
+                    <option value="3">Zone 3</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="createParkingRequest()">Request Parking</button>
+        </div>
+
+        <div class="rollback-section">
+            <h3>🔄 Rollback Last Allocations</h3>
+            <div class="rollback-controls">
+                <input type="number" id="rollbackCount" min="1" max="10" value="1" placeholder="Number of requests" />
+                <button class="btn btn-warning" onclick="performRollback()">Rollback</button>
+                <span id="rollbackInfo" class="rollback-info"></span>
+            </div>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="card">
+            <h2>Zone Status</h2>
+            <div class="zone-grid" id="zoneGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>Active Requests</h2>
+            <div id="requestsList"></div>
+        </div>
+
+        <div class="card">
+            <h2>Analytics</h2>
+            <div class="stats-grid" id="analyticsGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        const zones = {
+            1: { id: 1, name: 'Zone 1', total: 3, available: 3 },
+            2: { id: 2, name: 'Zone 2', total: 2, available: 2 },
+            3: { id: 3, name: 'Zone 3', total: 2, available: 2 }
+        };
+
+        const requests = [];
+        const allocationHistory = []; // Stack for rollback
+        let nextRequestId = 1;
+        const AUTO_RELEASE_TIME = 60000; // 1 minute in milliseconds
+
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} fade-in`;
+            alert.textContent = message;
+            container.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        function createParkingRequest() {
+            const vehicleId = document.getElementById('vehicleId').value.trim();
+            const preferredZone = parseInt(document.getElementById('preferredZone').value);
+
+            if (!vehicleId) {
+                showAlert('Please enter a vehicle number', 'danger');
+                return;
+            }
+
+            const request = {
+                id: nextRequestId++,
+                vehicleId: vehicleId,
+                requestedZone: preferredZone,
+                allocatedZone: null,
+                slotId: null,
+                state: 'REQUESTED',
+                crossZonePenalty: false,
+                requestTime: Date.now(),
+                allocationTime: null,
+                releaseTime: null,
+                timer: null
+            };
+
+            // Automatic allocation
+            allocateSlot(request);
+            requests.push(request);
+
+            document.getElementById('vehicleId').value = '';
+            updateDisplay();
+            updateRollbackInfo();
+        }
+
+        function allocateSlot(request) {
+            const preferredZone = zones[request.requestedZone];
+
+            if (preferredZone.available > 0) {
+                // Same-zone allocation
+                preferredZone.available--;
+                request.allocatedZone = request.requestedZone;
+                request.slotId = 100 + request.requestedZone * 100 + (preferredZone.total - preferredZone.available);
+                request.state = 'ALLOCATED';
+                request.allocationTime = Date.now();
+                request.crossZonePenalty = false;
+                
+                // Add to allocation history for rollback
+                allocationHistory.push({
+                    requestId: request.id,
+                    zoneId: request.allocatedZone,
+                    slotId: request.slotId
+                });
+                
+                showAlert(`✓ Allocated in ${preferredZone.name}, Slot ${request.slotId}`, 'success');
+                
+                // Automatically transition to OCCUPIED and set release timer
+                setTimeout(() => {
+                    if (request.state === 'ALLOCATED') {
+                        request.state = 'OCCUPIED';
+                        updateDisplay();
+                        
+                        // Auto-release after 1 minute
+                        request.timer = setTimeout(() => {
+                            releaseParking(request.id);
+                        }, AUTO_RELEASE_TIME);
+                    }
+                }, 100);
+            } else {
+                // Cross-zone allocation
+                let allocated = false;
+                for (let zoneId in zones) {
+                    if (zoneId != request.requestedZone && zones[zoneId].available > 0) {
+                        zones[zoneId].available--;
+                        request.allocatedZone = parseInt(zoneId);
+                        request.slotId = 100 + parseInt(zoneId) * 100 + (zones[zoneId].total - zones[zoneId].available);
+                        request.state = 'ALLOCATED';
+                        request.allocationTime = Date.now();
+                        request.crossZonePenalty = true;
+                        
+                        // Add to allocation history for rollback
+                        allocationHistory.push({
+                            requestId: request.id,
+                            zoneId: request.allocatedZone,
+                            slotId: request.slotId
+                        });
+                        
+                        showAlert(`⚠️ ${preferredZone.name} FULL. Allocated in Zone ${zoneId}, Slot ${request.slotId} (Cross-Zone Penalty Applied)`, 'warning');
+                        allocated = true;
+                        
+                        // Automatically transition to OCCUPIED and set release timer
+                        setTimeout(() => {
+                            if (request.state === 'ALLOCATED') {
+                                request.state = 'OCCUPIED';
+                                updateDisplay();
+                                
+                                // Auto-release after 1 minute
+                                request.timer = setTimeout(() => {
+                                    releaseParking(request.id);
+                                }, AUTO_RELEASE_TIME);
+                            }
+                        }, 100);
+                        break;
+                    }
+                }
+                if (!allocated) {
+                    request.state = 'CANCELLED';
+                    showAlert('❌ No parking available in any zone', 'danger');
+                }
+            }
+        }
+
+        function cancelRequest(requestId) {
+            const request = requests.find(r => r.id === requestId);
+            if (!request) return;
+
+            if (request.state === 'ALLOCATED' || request.state === 'OCCUPIED') {
+                // Clear timer if exists
+                if (request.timer) {
+                    clearTimeout(request.timer);
+                }
+                
+                zones[request.allocatedZone].available++;
+                request.state = 'CANCELLED';
+                
+                // Remove from allocation history
+                const historyIndex = allocationHistory.findIndex(h => h.requestId === requestId);
+                if (historyIndex !== -1) {
+                    allocationHistory.splice(historyIndex, 1);
+                }
+                
+                showAlert(`Request #${requestId} cancelled`, 'success');
+                updateDisplay();
+                updateRollbackInfo();
+            } else {
+                showAlert('Cannot cancel this request', 'danger');
+            }
+        }
+
+        function releaseParking(requestId) {
+            const request = requests.find(r => r.id === requestId);
+            if (!request) return;
+
+            if (request.state === 'OCCUPIED') {
+                // Clear timer if exists
+                if (request.timer) {
+                    clearTimeout(request.timer);
+                }
+                
+                zones[request.allocatedZone].available++;
+                request.state = 'RELEASED';
+                request.releaseTime = Date.now();
+                showAlert(`✓ Parking released for Request #${requestId}`, 'success');
+                updateDisplay();
+            } else {
+                showAlert('Cannot release this request', 'danger');
+            }
+        }
+
+        function performRollback() {
+            const count = parseInt(document.getElementById('rollbackCount').value);
+            
+            if (isNaN(count) || count < 1) {
+                showAlert('Please enter a valid number', 'danger');
+                return;
+            }
+
+            if (allocationHistory.length === 0) {
+                showAlert('No allocations to rollback', 'warning');
+                return;
+            }
+
+            const actualCount = Math.min(count, allocationHistory.length);
+            const rolledBackRequests = [];
+
+            for (let i = 0; i < actualCount; i++) {
+                const allocation = allocationHistory.pop();
+                const request = requests.find(r => r.id === allocation.requestId);
+                
+                if (request && (request.state === 'ALLOCATED' || request.state === 'OCCUPIED')) {
+                    // Clear timer if exists
+                    if (request.timer) {
+                        clearTimeout(request.timer);
+                    }
+                    
+                    // Restore slot availability
+                    zones[allocation.zoneId].available++;
+                    
+                    // Cancel the request
+                    request.state = 'CANCELLED';
+                    rolledBackRequests.push(request.id);
+                }
+            }
+
+            showAlert(`🔄 Rolled back ${actualCount} allocation(s): Requests #${rolledBackRequests.join(', #')}`, 'info');
+            updateDisplay();
+            updateRollbackInfo();
+        }
+
+        function updateRollbackInfo() {
+            const info = document.getElementById('rollbackInfo');
+            const count = allocationHistory.length;
+            info.textContent = count > 0 ? `${count} allocation(s) available for rollback` : 'No allocations to rollback';
+        }
+
+        function updateDisplay() {
+            updateZoneGrid();
+            updateRequestsList();
+            updateAnalytics();
+        }
+
+        function updateZoneGrid() {
+            const grid = document.getElementById('zoneGrid');
+            grid.innerHTML = '';
+
+            for (let zoneId in zones) {
+                const zone = zones[zoneId];
+                const occupied = zone.total - zone.available;
+                const isFull = zone.available === 0;
+
+                const card = document.createElement('div');
+                card.className = `zone-card ${isFull ? 'full' : ''}`;
+                card.innerHTML = `
+                    <h3>${zone.name} ${isFull ? '🔴 FULL' : '🟢'}</h3>
+                    <div class="zone-stats">
+                        <div>
+                            <div class="number">${zone.available}</div>
+                            <div class="label">Available</div>
+                        </div>
+                        <div>
+                            <div class="number">${occupied}</div>
+                            <div class="label">Occupied</div>
+                        </div>
+                        <div>
+                            <div class="number">${zone.total}</div>
+                            <div class="label">Total</div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        function updateRequestsList() {
+            const list = document.getElementById('requestsList');
+            list.innerHTML = '';
+
+            const activeRequests = requests.filter(r => r.state !== 'RELEASED' && r.state !== 'CANCELLED');
+
+            if (activeRequests.length === 0) {
+                list.innerHTML = '<p style="color: #7f8c8d; text-align: center; padding: 20px;">No active requests</p>';
+                return;
+            }
+
+            activeRequests.reverse().forEach(req => {
+                const item = document.createElement('div');
+                item.className = 'request-item fade-in';
+                
+                let timeRemaining = '';
+                if (req.state === 'OCCUPIED' && req.allocationTime) {
+                    const elapsed = Math.floor((Date.now() - req.allocationTime) / 1000);
+                    const remaining = Math.max(0, 60 - elapsed);
+                    const minutes = Math.floor(remaining / 60);
+                    const seconds = remaining % 60;
+                    timeRemaining = `<span class="timer">Auto-release in ${minutes}:${seconds.toString().padStart(2, '0')}</span>`;
+                }
+                
+                item.innerHTML = `
+                    <div class="request-info">
+                        <h4>Request #${req.id} - ${req.vehicleId}</h4>
+                        <div class="request-details">
+                            <span>Requested: Zone ${req.requestedZone}</span>
+                            ${req.allocatedZone ? `<span>Allocated: Zone ${req.allocatedZone}, Slot ${req.slotId}</span>` : ''}
+                            <span><span class="badge badge-${req.state.toLowerCase()}">${req.state}</span></span>
+                            ${timeRemaining}
+                        </div>
+                        ${req.crossZonePenalty ? '<div class="cross-zone-indicator">⚠️ Cross-Zone Penalty Applied</div>' : ''}
+                    </div>
+                    <div class="request-actions">
+                        ${req.state === 'OCCUPIED' || req.state === 'ALLOCATED' ? `<button class="btn btn-danger" onclick="cancelRequest(${req.id})">Cancel</button>` : ''}
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function updateAnalytics() {
+            const grid = document.getElementById('analyticsGrid');
+            
+            const total = requests.length;
+            const completed = requests.filter(r => r.state === 'RELEASED').length;
+            const cancelled = requests.filter(r => r.state === 'CANCELLED').length;
+            const active = requests.filter(r => r.state === 'OCCUPIED' || r.state === 'ALLOCATED').length;
+
+            grid.innerHTML = `
+                <div class="stat-card">
+                    <div class="value">${total}</div>
+                    <div class="label">Total Requests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${active}</div>
+                    <div class="label">Active</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${completed}</div>
+                    <div class="label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${cancelled}</div>
+                    <div class="label">Cancelled</div>
+                </div>
+            `;
+        }
+
+        // Update timers every second
+        setInterval(() => {
+            const activeRequests = requests.filter(r => r.state === 'OCCUPIED');
+            if (activeRequests.length > 0) {
+                updateRequestsList();
+            }
+        }, 1000);
+
+        // Initial display
+        updateDisplay();
+        updateRollbackInfo();
+    </script>
+</body>
+</html>
